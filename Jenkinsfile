@@ -2,43 +2,46 @@ pipeline {
     agent any
 
     environment {
-        COMPOSER_CACHE_DIR = "${WORKSPACE}/.composer-cache"
-        SONAR_TOKEN = credentials('mon_token_sonar') // Doit correspondre exactement à l'ID
+        SONAR_TOKEN = credentials('mon_token_sonar')
     }
 
     stages {
-        stage('Setup') {
+        stage('Checkout') {
             steps {
-                sh 'sudo apt-get update && sudo apt-get install -y php php-cli php-xml'
-                sh 'curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer'
+                checkout scm
             }
         }
 
-        stage('Test') {
+        stage('Install dependencies') {
             steps {
-                sh 'composer install'
-                sh 'php vendor/bin/phpunit --log-junit tests/results.xml'
+                sh 'composer install --no-interaction --prefer-dist'
             }
-            post {
-                always {
-                    junit 'tests/results.xml'
-                }
+        }
+
+        stage('Run Tests') {
+            steps {
+                sh './vendor/bin/phpunit --configuration phpunit.xml'
             }
         }
 
         stage('SonarQube Analysis') {
             steps {
-                withSonarQubeEnv('SonarQube') { // Doit correspondre au nom configuré
-                    sh '''
-                        sonar-scanner \
-                          -Dsonar.projectKey=your-php-project \
-                          -Dsonar.sources=. \
-                          -Dsonar.host.url=http://votre-serveur-sonar:9000 \
-                          -Dsonar.login=${SONAR_TOKEN} \
-                          -Dsonar.php.coverage.reportPaths=tests/results.xml
-                    '''
+                withSonarQubeEnv('SonarServer') {
+                    sh """
+                    sonar-scanner \
+                        -Dsonar.projectKey=slim3-skeleton \
+                        -Dsonar.sources=. \
+                        -Dsonar.host.url=$SONAR_HOST_URL \
+                        -Dsonar.login=$SONAR_TOKEN
+                    """
                 }
             }
+        }
+    }
+
+    post {
+        always {
+            junit '**/tests/reports/*.xml'  // adapte selon ton chemin des rapports PHPUnit
         }
     }
 }
