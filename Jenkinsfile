@@ -14,14 +14,15 @@ pipeline {
         }
 
         stage('Install PHP & Composer') {
-            steps {
-                sh '''
-                    apt-get update && apt-get install -y php-cli unzip curl git
-                    curl -sS https://getcomposer.org/installer | php
-                    mv composer.phar /usr/local/bin/composer
-                '''
-            }
-        }
+    steps {
+        sh '''
+            sudo apt-get update -yq
+            sudo apt-get install -yq php-cli curl
+            curl -sS https://getcomposer.org/installer | sudo php -- --install-dir=/usr/local/bin --filename=composer
+            composer --version
+        '''
+    }
+}
 
         stage('Generate SBOM') {
             steps {
