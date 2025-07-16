@@ -3,7 +3,7 @@ pipeline {
 
     environment {
         COMPOSER_CACHE_DIR = "${WORKSPACE}/.composer-cache"
-        SONAR_TOKEN = credentials('sonarqube_token') // ID de vos credentials SonarQube dans Jenkins
+        SONAR_TOKEN = credentials('mon_token_sonar') // ID de vos credentials SonarQube dans Jenkins
     }
 
     stages {
