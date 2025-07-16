@@ -1,12 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <phpunit bootstrap="vendor/autoload.php" colors="true" verbose="true">
-    <testsuites>
-        <testsuite name="Application Test Suite">
-            <directory>tests</directory>
-        </testsuite>
-    </testsuites>
+  <testsuites>
+    <testsuite name="Application Test Suite">
+      <directory>tests</directory>
+    </testsuite>
+  </testsuites>
 
-    <logging>
-        <log type="coverage-clover" target="coverage.xml"/>
-    </logging>
+  <filter>
+    <coverage>
+      <include>
+        <directory suffix=".php">./src</directory>
+      </include>
+    </coverage>
+  </filter>
+
+  <logging>
+    <log type="coverage-clover" target="coverage.xml"/>
+  </logging>
 </phpunit>
