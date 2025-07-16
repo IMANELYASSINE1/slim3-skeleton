@@ -12,12 +12,9 @@ pipeline {
             }
         }
 
-        stage('Run Tests and Generate Coverage') {
+        stage('Run tests') {
             steps {
-                sh '''
-                    composer install --no-interaction --prefer-dist
-                    ./vendor/bin/phpunit --configuration phpunit.xml --coverage-clover=coverage.xml
-                '''
+                sh './vendor/bin/phpunit --configuration phpunit.xml --coverage-clover=coverage.xml'
             }
         }
 
@@ -31,7 +28,7 @@ pipeline {
 
                         sonar-scanner \
                           -Dsonar.projectKey=slim3-skeleton \
-                          -Dsonar.sources=. \
+                          -Dsonar.sources=app/src \
                           -Dsonar.host.url=$SONAR_HOST_URL \
                           -Dsonar.login=$SONAR_TOKEN \
                           -Dsonar.php.coverage.reportPaths=coverage.xml
