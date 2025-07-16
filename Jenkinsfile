@@ -1,28 +1,23 @@
 pipeline {
-    agent any
-
+    agent {
+        docker {
+            image 'php:8.2-cli'
+        }
+    }
     environment {
-        SONAR_TOKEN = credentials('mon_token_sonar')
         DT_API_KEY = credentials('mon_token_dependencytrack')
+        SONAR_TOKEN = credentials('mon_token_sonar')
     }
 
     stages {
-        stage('Checkout') {
+        stage('Install Composer') {
             steps {
-                checkout scm
+                sh '''
+                    curl -sS https://getcomposer.org/installer | php
+                    mv composer.phar /usr/local/bin/composer
+                '''
             }
         }
-
-        stage('Install PHP & Composer') {
-    steps {
-        sh '''
-            sudo apt-get update -yq
-            sudo apt-get install -yq php-cli curl
-            curl -sS https://getcomposer.org/installer | sudo php -- --install-dir=/usr/local/bin --filename=composer
-            composer --version
-        '''
-    }
-}
 
         stage('Generate SBOM') {
             steps {
@@ -51,9 +46,7 @@ pipeline {
                     sh '''
                         curl -sSL -o sonar-scanner.zip https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-4.8.0.2856-linux.zip
                         unzip -oq sonar-scanner.zip
-                        rm -f sonar-scanner.zip  
                         export PATH=$PWD/sonar-scanner-4.8.0.2856-linux/bin:$PATH
-
                         sonar-scanner \
                           -Dsonar.projectKey=slim3-skeleton \
                           -Dsonar.sources=. \
