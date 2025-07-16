@@ -31,7 +31,7 @@ pipeline {
                           -Dsonar.sources=app/src \
                           -Dsonar.host.url=$SONAR_HOST_URL \
                           -Dsonar.login=$SONAR_TOKEN \
-                          -Dsonar.php.coverage.reportPaths=coverage.xml
+                        
                     '''
                 }
             }
