@@ -1,42 +1,35 @@
 pipeline {
-    agent {
-        docker {
-            image 'php:8.2-cli'
-        }
-    }
+    agent any
     environment {
         DT_API_KEY = credentials('mon_token_dependencytrack')
         SONAR_TOKEN = credentials('mon_token_sonar')
     }
 
     stages {
-        stage('Install Composer') {
+        stage('Checkout') {
             steps {
-                sh '''
-                    curl -sS https://getcomposer.org/installer | php
-                    mv composer.phar /usr/local/bin/composer
-                '''
+                checkout scm
             }
         }
 
-        stage('Generate SBOM') {
+        stage('Create Project in Dependency-Track') {
             steps {
-                sh '''
-                    composer global require cyclonedx/cyclonedx-php-composer
-                    ~/.composer/vendor/bin/cyclonedx-php-composer make --output-format xml --output-file bom.xml
-                '''
-            }
-        }
+                script {
+                    def projectName = "slim3-skeleton"
+                    def projectVersion = "1.0.0"
+                    def projectDescription = "Projet créé automatiquement via Jenkins pipeline"
 
-        stage('Send to Dependency-Track') {
-            steps {
-                sh '''
-                    curl -X "POST" "http://localhost:8081/api/v1/bom" \
-                      -H "X-Api-Key: $DT_API_KEY" \
-                      -H "Content-Type: multipart/form-data" \
-                      -F "project=83bbd561-b5e2-4d91-a596-78d584098b37" \
-                      -F "bom=@bom.xml"
-                '''
+                    sh """
+                    curl -X POST "http://localhost:8081/api/v1/project" \
+                        -H "Content-Type: application/json" \
+                        -H "X-Api-Key: ${DT_API_KEY}" \
+                        -d '{
+                            "name": "${projectName}",
+                            "version": "${projectVersion}",
+                            "description": "${projectDescription}"
+                        }' || echo "Projet déjà existant ou erreur lors de la création"
+                    """
+                }
             }
         }
 
@@ -58,3 +51,4 @@ pipeline {
         }
     }
 }
+
