@@ -2,38 +2,32 @@ pipeline {
     agent any
 
     environment {
-        COMPOSER_CACHE_DIR = "${WORKSPACE}\\.composer-cache"  // Backslash pour Windows
+        COMPOSER_CACHE_DIR = "${WORKSPACE}/.composer-cache"
     }
 
     stages {
-        stage('Check PHP version') {
+        stage('Setup PHP') {
             steps {
-                bat 'php -v'  // Remplacé 'sh' par 'bat'
+                sh 'sudo apt-get update && sudo apt-get install -y php php-cli php-xml'
             }
         }
-
-        stage('Check Composer version') {
+        stage('Check versions') {
             steps {
-                bat 'composer -V'  // Remplacé 'sh' par 'bat'
+                sh 'php -v'
+                sh 'composer -V'
             }
         }
-
-        stage('Install dependencies') {
+        stage('Run tests') {
             steps {
-                bat 'composer install'  // Remplacé 'sh' par 'bat'
-            }
-        }
-
-        stage('Run PHPUnit tests') {
-            steps {
-                bat 'vendor\\bin\\phpunit'  // Backslash et suppression du './'
+                sh 'composer install'
+                sh 'php vendor/bin/phpunit --log-junit tests/results.xml'
             }
         }
     }
 
     post {
         always {
-            junit 'tests\\*.xml'  // Backslash pour Windows
+            junit 'tests/results.xml'
         }
     }
 }
