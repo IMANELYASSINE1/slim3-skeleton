@@ -11,17 +11,25 @@ pipeline {
                 checkout scm
             }
         }
- stage('Install Composer') {
+stage('Install PHP') {
             steps {
                 sh '''
-                    set -e
+                    apt-get update
+                    apt-get install -y php-cli php-zip unzip curl
+                    php -v
+                '''
+            }
+        }
+
+        stage('Install Composer') {
+            steps {
+                sh '''
                     curl -sS https://getcomposer.org/installer | php
                     mv composer.phar /usr/local/bin/composer
                     composer -V
                 '''
             }
         }
-       
 
       stage('Generate SBOM') {
     steps {
