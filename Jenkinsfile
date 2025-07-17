@@ -13,24 +13,27 @@ pipeline {
         }
 
 
-stage('Install Composer') {
-    steps {
-        sh '''
-            curl -sS https://getcomposer.org/installer | php
-            mv composer.phar ./composer
-            ./composer -V
-        '''
-    }
+stage('Install Dependencies') {
+  steps {
+    sh '''
+      set -e
+      curl -sS https://getcomposer.org/installer | php
+      mv composer.phar ./composer
+      ./composer install
+      ./composer -V
+    '''
+  }
 }
 
-
-      stage('Generate SBOM') {
-    steps {
-       sh './composer cyclonedx:make --output-format=json --output-file=bom.json'
-        sh 'ls -l bom.json'
-    }
+stage('Generate SBOM') {
+  steps {
+    sh '''
+      set -e
+      ./composer cyclonedx:make --output-format=json --output-file=bom.json
+      ls -l bom.json
+    '''
+  }
 }
-
 
       
 
