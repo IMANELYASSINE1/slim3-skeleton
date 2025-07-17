@@ -26,7 +26,7 @@ stage('Install Composer and Dependencies') {
 
 stage('Generate SBOM') {
     steps {
-        sh 'composer cyclonedx:make --output-format=json --output-file=bom.json'
+        sh './composer cyclonedx:make --output-format=json --output-file=bom.json'
     }
 }
 
