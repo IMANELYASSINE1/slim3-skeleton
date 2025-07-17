@@ -12,14 +12,15 @@ pipeline {
             }
         }
 stage('Install PHP') {
-            steps {
-                sh '''
-                    apt-get update
-                    apt-get install -y php-cli php-zip unzip curl
-                    php -v
-                '''
-            }
-        }
+    steps {
+        sh '''
+            sudo apt-get update
+            sudo apt-get install -y php-cli php-zip unzip curl
+            php -v
+        '''
+    }
+}
+
 
         stage('Install Composer') {
             steps {
