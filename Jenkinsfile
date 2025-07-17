@@ -12,16 +12,7 @@ pipeline {
             }
         }
 
-        stage('Install Composer') {
-            steps {
-                sh '''
-                    set -e
-                    curl -sS https://getcomposer.org/installer | php
-                    mv composer.phar /usr/local/bin/composer
-                    composer -V
-                '''
-            }
-        }
+       
 
       stage('Generate SBOM') {
     steps {
