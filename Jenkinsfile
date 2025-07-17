@@ -35,11 +35,16 @@ pipeline {
             }
         }
 
-        stage('Generate SBOM') {
-            steps {
-                sh './composer cyclonedx:make --output-format=json --output-file=bom.json'
-            }
-        }
+       stage('Generate SBOM') {
+    steps {
+        sh '''
+            ./composer cyclonedx:make --output-format=json --output-file=bom.json
+            echo "--- Contenu de bom.json ---"
+            cat bom.json
+        '''
+    }
+}
+
 
         stage('SonarQube Analysis') {
             steps {
