@@ -16,7 +16,7 @@ pipeline {
             steps {
                 sh '''
                     API_KEY=$DT_API_KEY
-                    curl -X POST "http://dependency-track:8081/api/v1/project" \
+                    curl -X POST "http://172.17.0.4:8080/api/v1/project" \
                         -H "Content-Type: application/json" \
                         -H "X-Api-Key: $API_KEY" \
                         -d '{
@@ -24,6 +24,16 @@ pipeline {
                             "version": "1.0.0",
                             "description": "Projet créé automatiquement via Jenkins pipeline"
                         }' || echo "Projet déjà existant ou erreur lors de la création"
+                '''
+            }
+        }
+
+        stage('Install Node.js (for Sonar)') {
+            steps {
+                sh '''
+                    curl -fsSL https://deb.nodesource.com/setup_18.x | bash -
+                    apt-get install -y nodejs
+                    node -v
                 '''
             }
         }
@@ -45,6 +55,16 @@ pipeline {
             }
         }
 
+        stage('Install Composer') {
+            steps {
+                sh '''
+                    curl -sS https://getcomposer.org/installer | php
+                    mv composer.phar /usr/local/bin/composer
+                    composer -V
+                '''
+            }
+        }
+
         stage('Generate and Upload SBOM to Dependency-Track') {
             steps {
                 sh '''
@@ -54,7 +74,7 @@ pipeline {
 
                 sh '''
                     API_KEY=$DT_API_KEY
-                    curl -X PUT "http://dependency-track:8081/api/v1/bom" \
+                    curl -X PUT "http://172.17.0.4:8080/api/v1/bom" \
                         -H "X-Api-Key: $API_KEY" \
                         -F "projectName=slim3-skeleton" \
                         -F "projectVersion=1.0.0" \
