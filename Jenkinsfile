@@ -12,26 +12,40 @@ pipeline {
             }
         }
 
-        stage('Create Project in Dependency-Track') {
-            steps {
-                script {
-                    def projectName = "slim3-skeleton"
-                    def projectVersion = "1.0.0"
-                    def projectDescription = "Projet créé automatiquement via Jenkins pipeline"
+       stage('Create Project in Dependency-Track') {
+    steps {
+        script {
+            def projectName = "slim3-skeleton"
+            def projectVersion = "1.0.0"
+            def projectDescription = "Projet créé automatiquement via Jenkins pipeline"
 
-                    sh """
-                    curl -X POST "http://172.17.0.2:8080/api/v1/project" \
-                        -H "Content-Type: application/json" \
-                        -H "X-Api-Key: ${DT_API_KEY}" \
-                        -d '{
-                            "name": "${projectName}",
-                            "version": "${projectVersion}",
-                            "description": "${projectDescription}"
-                        }' || echo "Projet déjà existant ou erreur lors de la création"
-                    """
-                }
-            }
+            def jsonPayload = """{
+                "name": "${projectName}",
+                "version": "${projectVersion}",
+                "description": "${projectDescription}"
+            }"""
+
+            writeFile file: 'project.json', text: jsonPayload.trim()
+
+            sh '''
+            RESPONSE=$(curl -s -w "%{http_code}" -o response.json -X POST "http://172.17.0.2:8080/api/v1/project" \
+                -H "Content-Type: application/json" \
+                -H "X-Api-Key: ${DT_API_KEY}" \
+                -d @project.json)
+
+            echo "HTTP Status Code: $RESPONSE"
+            echo "Response Body:"
+            cat response.json
+
+            if [ "$RESPONSE" != "200" ] && [ "$RESPONSE" != "201" ]; then
+                echo "Erreur lors de la création du projet dans Dependency-Track"
+                exit 1
+            fi
+            '''
         }
+    }
+}
+
        
         stage('SonarQube Analysis') {
             steps {
