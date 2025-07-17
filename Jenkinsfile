@@ -32,29 +32,7 @@ pipeline {
                 }
             }
         }
-        stage('Get Project UUID') {
-            steps {
-                script {
-                    def projectName = "slim3-skeleton"
-                    def projectVersion = "1.0.0"
-
-                    def uuid = sh(
-                        script: """
-                        curl -s -X GET "http://172.17.0.2:8080/api/v1/project?name=${projectName}&version=${projectVersion}" \
-                            -H "X-Api-Key: ${DT_API_KEY}" | jq -r '.[0].uuid'
-                        """,
-                        returnStdout: true
-                    ).trim()
-
-                    if (uuid == "null" || uuid == "") {
-                        error("❌ Le projet n'existe pas ou le UUID n'a pas pu être récupéré.")
-                    }
-
-                    echo "✅ UUID du projet récupéré : ${uuid}"
-                }
-            }
-        }
-
+       
         stage('SonarQube Analysis') {
             steps {
                 withSonarQubeEnv('SonarServer') {
