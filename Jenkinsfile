@@ -49,22 +49,5 @@ pipeline {
                 }
             }
         }
-
-        stage('Generate and Upload SBOM to Dependency-Track') {
-            steps {
-                sh '''
-                    composer require --dev cyclonedx/cyclonedx-php-composer
-                    vendor/bin/cyclonedx-composer make --output-format json --output-file bom.json
-                '''
-
-                sh """
-                    curl -X PUT "http://172.17.0.4:8081/api/v1/bom" \
-                        -H "X-Api-Key: ${DT_API_KEY}" \
-                        -F "projectName=slim3-skeleton" \
-                        -F "projectVersion=1.0.0" \
-                        -F "bom=@bom.json"
-                """
-            }
-        }
     }
-}
+}  
