@@ -11,15 +11,7 @@ pipeline {
                 checkout scm
             }
         }
-stage('Install PHP') {
-    steps {
-        sh '''
-            sudo apt-get update
-            sudo apt-get install -y php-cli php-zip unzip curl
-            php -v
-        '''
-    }
-}
+
 
 
         stage('Install Composer') {
