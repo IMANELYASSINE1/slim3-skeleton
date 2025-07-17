@@ -18,7 +18,7 @@ stage('Install Composer and Dependencies') {
         sh '''
           curl -sS https://getcomposer.org/installer | php
           mv composer.phar ./composer
-          ./composer install
+          ./composer install --no-interaction --prefer-dist --dev
           ./composer -V
         '''
     }
@@ -30,8 +30,6 @@ stage('Generate SBOM') {
     }
 }
 
-
-      
 
         stage('SonarQube Analysis') {
             steps {
