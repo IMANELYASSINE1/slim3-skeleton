@@ -18,8 +18,9 @@ stage('Install Composer and Dependencies') {
         sh '''
           curl -sS https://getcomposer.org/installer | php
           mv composer.phar ./composer
-          ./composer install --no-interaction --prefer-dist --dev
+         ./composer install --dev
           ./composer -V
+            ./composer show cyclonedx/cyclonedx-php-composer || echo "Plugin cyclonedx non trouvé"
         '''
     }
 }
