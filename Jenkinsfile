@@ -78,17 +78,21 @@ pipeline {
 }
 
 
-        stage('Upload SBOM to Dependency-Track') {
-            steps {
-                sh '''
-                    set -e
-                    curl -X PUT "http://172.17.0.2:8080/api/v1/bom" \
-                        -H "X-Api-Key: $DT_API_KEY" \
-                        -F "projectName=slim3-skeleton" \
-                        -F "projectVersion=1.0.0" \
-                        -F "bom=@bom.json"
-                '''
-            }
-        }
+       stage('Upload SBOM to Dependency-Track') {
+    steps {
+        sh '''
+            base64 -w 0 bom.json > bom.base64
+            curl -X PUT "http://172.17.0.2:8080/api/v1/bom" \
+                -H "X-Api-Key: $DT_API_KEY" \
+                -H "Content-Type: application/json" \
+                -d '{
+                      "projectName": "slim3-skeleton",
+                      "projectVersion": "1.0.0",
+                      "bom": "'$(cat bom.base64)'"
+                    }'
+        '''
+    }
+}
+
     }
 }
