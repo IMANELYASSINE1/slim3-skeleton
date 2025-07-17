@@ -63,7 +63,7 @@ pipeline {
             steps {
                 sh '''
                     set -e
-                    curl -X PUT "http://172.17.0.4:8080/api/v1/bom" \
+                    curl -X PUT "http://172.17.0.2:8080/api/v1/bom" \
                         -H "X-Api-Key: $DT_API_KEY" \
                         -F "projectName=slim3-skeleton" \
                         -F "projectVersion=1.0.0" \
