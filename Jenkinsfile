@@ -12,28 +12,22 @@ pipeline {
             }
         }
 
-      stage('Create Project in Dependency-Track') {
+        stage('Create Project in Dependency-Track') {
             steps {
-                script {
-                    def projectName = "slim3-skeleton"
-                    def projectVersion = "1.0.0"
-                    def projectDescription = "Projet créé automatiquement via Jenkins pipeline"
-
-                    sh """
-                    curl -X POST "http://localhost:8081/api/v1/project" \
+                sh '''
+                    API_KEY=$DT_API_KEY
+                    curl -X POST "http://dependency-track:8081/api/v1/project" \
                         -H "Content-Type: application/json" \
-                        -H "X-Api-Key: ${DT_API_KEY}" \
+                        -H "X-Api-Key: $API_KEY" \
                         -d '{
-                            "name": "${projectName}",
-                            "version": "${projectVersion}",
-                            "description": "${projectDescription}"
+                            "name": "slim3-skeleton",
+                            "version": "1.0.0",
+                            "description": "Projet créé automatiquement via Jenkins pipeline"
                         }' || echo "Projet déjà existant ou erreur lors de la création"
-                    """
-                }
+                '''
             }
         }
 
-       
         stage('SonarQube Analysis') {
             steps {
                 withSonarQubeEnv('SonarServer') {
@@ -50,5 +44,23 @@ pipeline {
                 }
             }
         }
+
+        stage('Generate and Upload SBOM to Dependency-Track') {
+            steps {
+                sh '''
+                    composer require --dev cyclonedx/cyclonedx-php-composer
+                    vendor/bin/cyclonedx-composer make --output-format json --output-file bom.json
+                '''
+
+                sh '''
+                    API_KEY=$DT_API_KEY
+                    curl -X PUT "http://dependency-track:8081/api/v1/bom" \
+                        -H "X-Api-Key: $API_KEY" \
+                        -F "projectName=slim3-skeleton" \
+                        -F "projectVersion=1.0.0" \
+                        -F "bom=@bom.json"
+                '''
+            }
+        }
     }
-}  
+}
