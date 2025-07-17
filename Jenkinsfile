@@ -16,7 +16,7 @@ pipeline {
             steps {
                 sh '''
                     API_KEY=$DT_API_KEY
-                    curl -X POST "http://172.17.0.4:8080/api/v1/project" \
+                    curl -X POST "http://172.17.0.2:8080/api/v1/project" \
                         -H "Content-Type: application/json" \
                         -H "X-Api-Key: $API_KEY" \
                         -d '{
