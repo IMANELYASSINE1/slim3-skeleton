@@ -15,20 +15,20 @@ pipeline {
         stage('Install Composer and Dependencies') {
             steps {
                 sh '''
-                    # Installer Composer
+                    
                     curl -sS https://getcomposer.org/installer | php
                     mv composer.phar ./composer
 
-                    # Autoriser le plugin CycloneDX
+                    
                     ./composer config --no-plugins allow-plugins.cyclonedx/cyclonedx-php-composer true
 
-                    # Ajouter le plugin CycloneDX
+                    
                     ./composer require --dev cyclonedx/cyclonedx-php-composer
 
-                    # Installer les dépendances du projet
+                    
                     ./composer install --no-interaction --prefer-dist --dev
 
-                    # Afficher les versions installées
+                    
                     ./composer -V
                     ./composer show cyclonedx/cyclonedx-php-composer || echo "Plugin cyclonedx non trouvé"
                 '''
