@@ -20,7 +20,7 @@ pipeline {
                     def projectDescription = "Projet créé automatiquement via Jenkins pipeline"
 
                     sh """
-                    curl -X POST "http://localhost:8081/api/v1/project" \
+                    curl -X POST "http://http://dependency-track:8081/api/v1/project" \
                         -H "Content-Type: application/json" \
                         -H "X-Api-Key: ${DT_API_KEY}" \
                         -d '{
