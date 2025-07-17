@@ -58,6 +58,20 @@ pipeline {
                 }
             }
         }
+        stage('Create Project in Dependency-Track') {
+    steps {
+        sh '''
+            curl -X PUT "http://172.17.0.2:8080/api/v1/project" \
+              -H "X-Api-Key: $DT_API_KEY" \
+              -H "Content-Type: application/json" \
+              -d '{
+                    "name": "slim3-skeleton",
+                    "version": "1.0.0"
+                  }'
+        '''
+    }
+}
+
 
         stage('Upload SBOM to Dependency-Track') {
             steps {
