@@ -23,32 +23,14 @@ pipeline {
             }
         }
 
-        stage('Generate SBOM') {
-            steps {
-                sh '''
-                    set -e
-                    composer cyclonedx:make --output-format=json --output-file=bom.json
-                    if [ -f bom.json ]; then
-                        echo "Le fichier bom.json a été créé avec succès."
-                        ls -l bom.json
-                    else
-                        echo "Erreur : fichier bom.json non trouvé."
-                        exit 1
-                    fi
-                '''
-            }
-        }
+      stage('Generate SBOM') {
+    steps {
+        sh 'composer cyclonedx:make --output-format=json --output-file=bom.json'
+    }
+}
 
-        stage('Install Node.js (for Sonar)') {
-            steps {
-                sh '''
-                    set -e
-                    curl -fsSL https://deb.nodesource.com/setup_18.x | bash -
-                    apt-get install -y nodejs
-                    node -v
-                '''
-            }
-        }
+
+      
 
         stage('SonarQube Analysis') {
             steps {
