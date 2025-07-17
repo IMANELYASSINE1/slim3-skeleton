@@ -18,9 +18,15 @@ stage('Install Composer and Dependencies') {
         sh '''
           curl -sS https://getcomposer.org/installer | php
           mv composer.phar ./composer
-         ./composer install --dev
+
+          
+          ./composer require --dev cyclonedx/cyclonedx-php-composer
+
+          
+          ./composer install --no-interaction --prefer-dist --dev
+
           ./composer -V
-            ./composer show cyclonedx/cyclonedx-php-composer || echo "Plugin cyclonedx non trouvé"
+          ./composer show cyclonedx/cyclonedx-php-composer || echo "Plugin cyclonedx non trouvé"
         '''
     }
 }
@@ -30,8 +36,6 @@ stage('Generate SBOM') {
         sh './composer cyclonedx:make --output-format=json --output-file=bom.json'
     }
 }
-
-
         stage('SonarQube Analysis') {
             steps {
                 withSonarQubeEnv('SonarServer') {
